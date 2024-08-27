@@ -10,3 +10,5 @@ yarn.lock
 *_.py
 /examples
 .env
+ahref_input.json
+ahref_log.json
