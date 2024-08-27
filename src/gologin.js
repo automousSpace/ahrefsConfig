@@ -29,14 +29,7 @@ import { checkAutoLang } from './utils/browser.js';
 import { API_URL } from './utils/common.js';
 import { get, isPortReachable } from './utils/utils.js';
 
-import admin  from 'firebase-admin'
-import serviceAccount from'./admin.json' assert { type: "json" };
 
-admin.initializeApp({
-credential: admin.credential.cert(serviceAccount),
-databaseURL: "https://resell-428c4-default-rtdb.firebaseio.com",
-authDomain: "resell-428c4-default-rtdb.firebaseio.com",
-});
 
 const { access, unlink, writeFile, readFile } = _promises;
 
