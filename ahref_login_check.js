@@ -375,14 +375,14 @@ async function getAhrefsPlan(cookies, useragent) {
               {
                
                 data = JSON.parse(data)
-                let dataExport = data.web[1].dataExport.planLimit - data.web[1].dataExport.usage
-                let projects = data.web[1].projects.unverified.planLimit - data.web[1].projects.unverified.usage
-                let rankTracker = data.web[1].rankTracker.keywords.planLimit - data.web[1].rankTracker.keywords.usage
-                let siteAudit = data.web[1].siteAudit.crawlCredits.planLimit - data.web[1].siteAudit.crawlCredits.usage 
-                let userdata = ''
-                let usersLength = data.web[1].reports.byUser.usage.length
-                let planName = data.web[1].subscriptionInfo.productName
-                let planInterval = data.web[1].subscriptionInfo.interval
+                let dataExport = (data?.web[1]?.dataExport?.planLimit ?? 0) - (data?.web[1]?.dataExport?.usage ?? 0)
+                let projects = (data?.web[1]?.projects?.unverified?.planLimit ?? 0) - (data?.web[1]?.projects?.unverified?.usage ?? 0);
+                let rankTracker = (data?.web[1]?.rankTracker?.keywords?.planLimit ?? 0) - (data?.web[1]?.rankTracker?.keywords?.usage ?? 0);
+                let siteAudit = (data?.web[1]?.siteAudit?.crawlCredits?.planLimit ?? 0) - (data?.web[1]?.siteAudit?.crawlCredits?.usage ?? 0);
+                let userdata = '';
+                let usersLength = data?.web[1]?.reports?.byUser?.usage?.length ?? 0;
+                let planName = data?.web[1]?.subscriptionInfo?.productName ?? '';
+                let planInterval = data?.web[1]?.subscriptionInfo?.interval ?? '';
 
                 let jsondata = {
                     planName: planName,
