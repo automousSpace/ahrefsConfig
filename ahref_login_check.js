@@ -370,7 +370,7 @@ async function getAhrefsPlan(cookies, useragent) {
         
           res.on('end', () => {
          //   process.stdout.write(data)
-         console.log(" Ahrefs Plan ", res.statusCode)
+         console.log(" Ahrefs Plan Status = ", res.statusCode)
             if(res.statusCode == 200)
               {
                
