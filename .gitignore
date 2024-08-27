@@ -9,4 +9,4 @@ yarn.lock
 *_.js
 *_.py
 /examples
-.gitignore
+.env
