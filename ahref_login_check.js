@@ -244,7 +244,7 @@ const account_creater = async (username, password, cookiess) =>
                 try
                 {
                   tries--
-                  await page.waitForSelector('#verification-required' , { timeout: 10000 });
+              //    await page.waitForSelector('#verification-required' , { timeout: 10000 });
                   console.log(" Verification Found... ")
                     await browser.close();
                     return resolve(["otpfail", '', '']);
