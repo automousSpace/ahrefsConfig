@@ -529,8 +529,13 @@ const starter = async  () =>
                 let password = jsonData[i].PasswordLog.Password
                 let cookies = jsonData[i].Cookies
 
+                if(username.length == 0 || password.length == 0)
+                continue;
+
                 if(!username.includes('@'))
                 continue;
+
+
     
                 cookies.forEach(cookie => {
                     for (const key in cookie) {
