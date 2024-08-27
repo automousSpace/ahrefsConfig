@@ -167,7 +167,7 @@ const account_creater = async (username, password, cookiess) =>
                 try
                 {
                   tries--
-                  console.log(" An error occurred")
+                  console.log(" An error occurred, Block")
                   await browser.close();
                   return resolve(["anErrorOuccurred", '', '']);
 
