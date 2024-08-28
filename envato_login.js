@@ -4,6 +4,8 @@ import puppeteerr from 'puppeteer-extra';
 import RecaptchaPlugin from 'puppeteer-extra-plugin-recaptcha';
 import https from 'https';
 import 'dotenv/config';
+import { Cluster } from 'puppeteer-cluster';
+
 
 
 
@@ -54,7 +56,8 @@ const account_creater = async (username, password, cookiess) =>
                  password: process.env.PROXY_PASS
              },
            });
-
+        
+           console.log(profile_id)
            const GL = new GoLogin({
             token: raw_token,
             profile_id: profile_id,
@@ -77,12 +80,10 @@ const account_creater = async (username, password, cookiess) =>
         
           const browser = await puppeteerr.connect({
             browserWSEndpoint: wsUrl.toString(),
-            headless: true,
             ignoreHTTPSErrors: true,
             args: [
               '--disable-features=IsolateOrigins,site-per-process,SitePerProcess',
-              '--flag-switches-begin --disable-site-isolation-trials --flag-switches-end',
-              '--disable-extensions'
+              '--flag-switches-begin --disable-site-isolation-trials --flag-switches-end'
             ]
           });
         
@@ -107,7 +108,9 @@ const account_creater = async (username, password, cookiess) =>
             await client.send('Network.clearBrowserCookies');
             await client.send('Network.clearBrowserCache');
 
-          await page.goto('https://app.ahrefs.com/user/login');
+            console.log(cookiess)
+
+          await page.goto('https://elements.envato.com/sign-in');
           await page.setCookie(...cookiess);
           await page.reload()
           ////await addDataInMsgQueue(" Ahrefs Page Opened")
@@ -117,7 +120,7 @@ const account_creater = async (username, password, cookiess) =>
           while(true)
           {
              await delay(5000)
-             let body = await page.evaluate(() => document.querySelector('body').innerText);
+             let body = await page.content();
            //  console.log(body);
              
              if(body)
@@ -126,7 +129,7 @@ const account_creater = async (username, password, cookiess) =>
               
 
               //login error
-              if(body.includes("Incorrect email or password") || body.includes("incorrect email or password"))
+              if(body.includes("not your correct details"))
               {
                 try
                 {
@@ -145,12 +148,12 @@ const account_creater = async (username, password, cookiess) =>
         
                 }
               }
-              if(body.includes("An error occurred") || body.includes("an error occurred"))
+              if(body.includes("Your account is connected to Google"))
               {
                 try
                 {
                   tries--
-                  console.log(" An error occurred, Block")
+                  console.log(" Account connected to Google, Found")
                   await browser.close();
                   return resolve(["anErrorOuccurred", '', '']);
 
@@ -166,34 +169,34 @@ const account_creater = async (username, password, cookiess) =>
               }
 
               // normal functions
-              if(body.includes("Sign in to Ahrefs"))
+              if(body.includes("Sign in") && body.includes("Create an Envato account"))
               {
                 try
                 {
                   tries--
                   repeat_tries++
-                  await page.waitForSelector('input[name="email"]' , { timeout: 10000 });
-                  await page.click('input[name="email"]');
-                  await page.type('input[name="email"]', username);
+                  await page.waitForSelector('input[id="username"]' , { timeout: 10000 });
+                  await page.click('input[id="username"]');
+                  await page.type('input[id="username"]', username);
                   console.log(" Email Entered..")
                   //await addDataInMsgQueue(" Email Entered")
         
-                  await page.waitForSelector('input[name="password"]');
-                  await page.click('input[name="password"]');
-                  await page.type('input[name="password"]', password);
+                  await page.waitForSelector('input[id="password"]');
+                  await page.click('input[id="password"]');
+                  await page.type('input[id="password"]', password);
                   console.log(" Password Entered..")
                   //await addDataInMsgQueue(" Password Entered")
         
                   await delay(3000)
-                  await page.waitForSelector('button[type="submit"]')
-                  await page.click('button[type="submit"]');
+                  await page.waitForSelector('button[id="sso-forms__submit"]')
+                  await page.click('button[id="sso-forms__submit"]');
                   console.log(" Login Clicked..")
 
                   while(1)
                   {
                     try
                     {
-                        await page.waitForSelector('button[class="css-15qe8gh-button css-to952e css-1lk7enj css-1ssbn0c css-1bc3w0g css-yehzql-buttonLoading"]' , { timeout: 4000 });
+                        await page.waitForSelector('button[disabled=""]' , { timeout: 2000 });
                         await delay(2000)
                     }
                     catch(e)
@@ -239,7 +242,7 @@ const account_creater = async (username, password, cookiess) =>
         
                 }
               }
-              if(body.includes("Dashboard") || body.includes("Site Explorer"))
+              if(body.includes("Welcome") && body.includes("All categories"))
               {
                 try
                 {
@@ -333,75 +336,157 @@ async function getAhrefsPlan(cookies, useragent) {
       try
       {
         const options = {
-          hostname: 'app.ahrefs.com',
-          path: '/v4/asGetLimits',
-          method: 'POST',
+          hostname: 'account.elements.envato.com',
+          path: '/elements-api/recurly_subscription_service/my_subscription.json',
+          method: 'GET',
           headers: {
-            'Origin': 'https://app.ahrefs.com',
-            'Content-Type': 'application/json',
-            'Referer': 'https://app.ahrefs.com/account/limits-and-usage/web',
+            'Origin': 'https://account.elements.envato.com',
+            'Accept': 'application/json',
+            'Referer': 'https://account.elements.envato.com/subscription',
             'User-Agent':useragent,
-            'Cookie' : cookies
+            'Cookie' : cookies,
+            'x-csrf-token':
+'nmbfM4_A-35575ZjAN4WWh5eFJocLP98-q9nQg5-oAu9AOYTRL8OUMc0lPn3tQYfhnrcfukbEBwH9TzFJ2paww',
+'x-csrf-n-2':
+'R8O9V1_CmsKcYTZ7wpXDvEvCtwJhK8KWQALDtcO-wqHDunXCjBPDs8OXeQdFwovDmcOUwoNaTVzCjG_Dnx_DnsKswqA6RjnCqFfChkF_TsOIwqDDvC5BBjIgEFw',
+'x-datadog-origin':
+'rum',
+'x-datadog-parent-id':
+'6866591733793296182',
+'x-datadog-sampling-priority':
+'1',
+'x-datadog-trace-id': '7646980488174552735',
             }
   
         };
     
-  
-  
-       
-        const req = https.request(options, res => {
-          let data = '';
-        
-          res.on('data', chunk => {
-            data += chunk;
+        const cluster = await Cluster.launch({
+            concurrency: Cluster.CONCURRENCY_PAGE,
+            maxConcurrency: 10,
+            puppeteer: puppeteerr,
+            timeout: 120000,
           });
         
-          res.on('end', () => {
-         //   process.stdout.write(data)
-         console.log(" Ahrefs Plan Status = ", res.statusCode)
-            if(res.statusCode == 200)
-              {
-               
-                data = JSON.parse(data)
-                let dataExport = (data?.web[1]?.dataExport?.planLimit ?? 0) - (data?.web[1]?.dataExport?.usage ?? 0)
-                let projects = (data?.web[1]?.projects?.unverified?.planLimit ?? 0) - (data?.web[1]?.projects?.unverified?.usage ?? 0);
-                let rankTracker = (data?.web[1]?.rankTracker?.keywords?.planLimit ?? 0) - (data?.web[1]?.rankTracker?.keywords?.usage ?? 0);
-                let siteAudit = (data?.web[1]?.siteAudit?.crawlCredits?.planLimit ?? 0) - (data?.web[1]?.siteAudit?.crawlCredits?.usage ?? 0);
-                let userdata = '';
-                let usersLength = data?.web[1]?.reports?.byUser?.usage?.length ?? 0;
-                let planName = data?.web[1]?.subscriptionInfo?.productName ?? '';
-                let planInterval = data?.web[1]?.subscriptionInfo?.interval ?? '';
+          await cluster.task(async ({ page, data }) => {
+            try {
+      
+      
+              const parsedUrl = new URL(data.proxy);
+              const host = parsedUrl.hostname;
+              const port = parsedUrl.port; 
+              const username = parsedUrl.username; 
+              const password = parsedUrl.password;
 
-                let jsondata = {
-                    planName: planName,
-                    planInterval: planInterval,
-                    dataExport: dataExport,
-                    projects: projects,
-                    rankTracker: rankTracker,
-                    siteAudit: siteAudit
-                   
-                };
-
-                console.log(jsondata)
-                return resolve(jsondata)
-                
-              }
-              else
-              {
-                return reject(false)
-              }
+              const GL = new GoLogin({
+                token: raw_token,
+                profile_id: profile_id,
+                extra_params: [
+                    "--no-sandbox",
+                    `--proxy-server=${host}:${port}`,
+                ]
+              });
             
-          });
-        });
-        
-        req.on('error', error => {
-          console.log(error);
-          return reject (null)
-        });
-        
+              const { status, wsUrl } = await GL.start().catch((e) => {
+                console.trace(e);
+                return { status: 'failure' };
+              });
+            
+              if (status !== 'success') {
+                console.log('Invalid status');
+                return;
+              }
+              const browser = await puppeteerr.connect({
+                browserWSEndpoint: wsUrl,
+                defaultViewport: null,
+                headless: true,
+            });
+
   
-        req.write('null');
-        req.end();
+              const page = await browser.newPage();
+      
+              let reqUrl = `https://www.pipiads.com/v1/api/member/login`;
+              console.log(reqUrl)
+      
+              await page.authenticate({
+                username: username,
+                password: password,
+              });
+      
+              await page.setUserAgent(data.userAgent);
+      
+      
+              let bodyResponse = "";
+              let contentTypeResponse = "";
+              let responseStatus = 0
+              
+              const client = await page.target().createCDPSession();
+              await client.send('Network.clearBrowserCookies');
+              await client.send('Network.clearBrowserCache');  
+            //  console.log(JSON.parse(data.cookie))
+            //  await page.setCookie(...JSON.parse(data.cookie));
+              await page.setRequestInterception(true);
+        
+              page.on("request", (request) =>
+              {
+                
+                  const headers = request.headers();
+                  headers["Content-Type"] = 'application/json'
+                  headers["Origin"] = 'https://www.pipiads.com'
+                  headers["Referer"] =  'https://www.pipiads.com/login/'
+      
+                  console.log( data.body)
+                  request.continue({
+                  method: data.method,
+                  ...(data.method === "PUT" && {
+                    postData: data.body,
+                  }),
+                  headers,
+                });
+      
+              });
+      
+              const response = await page.goto(reqUrl);
+              responseStatus = response.status()
+      
+              console.log(responseStatus)
+            //  console.log(response.headers())
+      
+        
+            contentTypeResponse = "application/json";
+            bodyResponse = await response.text()
+      
+              await page.close()
+              await browser.close();
+              return { bodyResponse, contentTypeResponse , responseStatus };
+        
+            
+              
+              
+              
+            } catch (error) {
+              console.log(error, "ini errrrerror");
+              return error;
+            }
+          });
+      
+          const data = `{"email":"collectivecord@gmail.com","password":"CollectivePiPiAds0!","device_id":781941315}`
+      
+          const fetchData = await cluster.execute(
+            {
+                body: data,
+                method : 'PUT',
+                userAgent : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+                proxy : 'http://bajrangbali:jaishreeram@107.172.225.9:12345',
+            });
+            
+            if(fetchData.bodyResponse.includes("Just a moment"))
+            {
+                console.log("Just a moment")
+            }
+            else
+            {
+                console.log(fetchData.bodyResponse)
+            }
       }
       catch(e)
       {
