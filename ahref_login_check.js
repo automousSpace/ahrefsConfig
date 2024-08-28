@@ -4,6 +4,7 @@ import puppeteerr from 'puppeteer-extra';
 import RecaptchaPlugin from 'puppeteer-extra-plugin-recaptcha';
 import https from 'https';
 import 'dotenv/config';
+import { del } from 'request';
 
 
 
@@ -25,25 +26,6 @@ puppeteerr.use(
     visualFeedback: true // colorize reCAPTCHAs (violet = detected, green = solved)
   })
 )
-
-function makeid(length) {
-  var result           = '';
-  var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  var charactersLength = characters.length;
-  for ( var i = 0; i < length; i++ ) {
-    result += characters.charAt(Math.floor(Math.random() * 
-charactersLength));
- }
- return result+"@bymechanics.com";
-}
-
-function sleep(ms) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
-
-let tmp_mail = ''
 
 const account_creater = async (username, password, cookiess) =>
  {
@@ -269,6 +251,11 @@ const account_creater = async (username, password, cookiess) =>
                   //await addDataInMsgQueue(" Account Login Successful")
                 //  await delay(500000000)
                   const cookies = await page.cookies()
+
+                  while(process.env.FREEZ_EXECUTION)
+                  {
+                    await delay(2000)
+                  }
                     
                   await browser.close();
                   return resolve(["success", cookies, userAgent]);
@@ -338,7 +325,6 @@ const account_creater = async (username, password, cookiess) =>
 
 
 }
-
 async function getAhrefsPlan(cookies, useragent) {
     return new Promise(async (resolve, reject) => {
       
@@ -421,90 +407,88 @@ async function getAhrefsPlan(cookies, useragent) {
         return reject (null)
       }
     });
-  }
-
-  async function getAhrefsMembers(cookies, useragent) {
-    return new Promise(async (resolve, reject) => {
-      
-      try
-      {
-        const options = {
-          hostname: 'app.ahrefs.com',
-          path: '/v4/tkGetWorkspaceInfo',
-          method: 'POST',
-          headers: {
-            'Origin': 'https://app.ahrefs.com',
-            'Content-Type': 'application/json',
-            'Referer': 'https://app.ahrefs.com/account/members/confirmed',
-            'User-Agent':useragent,
-            'Cookie' : cookies
-            }
-  
-        };
+}
+async function getAhrefsMembers(cookies, useragent) {
+  return new Promise(async (resolve, reject) => {
     
+    try
+    {
+      const options = {
+        hostname: 'app.ahrefs.com',
+        path: '/v4/tkGetWorkspaceInfo',
+        method: 'POST',
+        headers: {
+          'Origin': 'https://app.ahrefs.com',
+          'Content-Type': 'application/json',
+          'Referer': 'https://app.ahrefs.com/account/members/confirmed',
+          'User-Agent':useragent,
+          'Cookie' : cookies
+          }
+
+      };
   
-  
-       
-        const req = https.request(options, res => {
-          let data = '';
-        
-          res.on('data', chunk => {
-            data += chunk;
-          });
-        
-          res.on('end', () => {
-         //   process.stdout.write(data)
-         console.log(" Member Plan ", res.statusCode)
-            if(res.statusCode == 200)
-              {
-               
-                data = JSON.parse(data)
-
-                let jsondata = [
-                     
-                ]
-
-                let tmpdata = 
-                {
-                    email : '',
-                    role : ''
-                }
-                data.confirmedMembers.forEach(member => {
-                    tmpdata.email = member.email
-                    tmpdata.role = member.role
-                    jsondata.push(tmpdata)
-                });
 
 
-               
-                return resolve(jsondata)
-                
-              }
-              else
-              {
-                return reject(false)
-              }
-            
-          });
+      
+      const req = https.request(options, res => {
+        let data = '';
+      
+        res.on('data', chunk => {
+          data += chunk;
         });
-        
-        req.on('error', error => {
-          console.error(error);
-          return reject (null)
+      
+        res.on('end', () => {
+        //   process.stdout.write(data)
+        console.log(" Member Plan ", res.statusCode)
+          if(res.statusCode == 200)
+            {
+              
+              data = JSON.parse(data)
+
+              let jsondata = [
+                    
+              ]
+
+              let tmpdata = 
+              {
+                  email : '',
+                  role : ''
+              }
+              data.confirmedMembers.forEach(member => {
+                  tmpdata.email = member.email
+                  tmpdata.role = member.role
+                  jsondata.push(tmpdata)
+              });
+
+
+              
+              return resolve(jsondata)
+              
+            }
+            else
+            {
+              return reject(false)
+            }
+          
         });
-        
-  
-        req.write('{"order":"Asc","sortBy":"Name"}');
-        req.end();
-      }
-      catch(e)
-      {
-        console.log(" Error in getAhrefsPlan "+ e)
+      });
+      
+      req.on('error', error => {
+        console.error(error);
         return reject (null)
-      }
-    });
-  }
+      });
+      
 
+      req.write('{"order":"Asc","sortBy":"Name"}');
+      req.end();
+    }
+    catch(e)
+    {
+      console.log(" Error in getAhrefsPlan "+ e)
+      return reject (null)
+    }
+  });
+}
 const starter = async  () => 
 {
 
