@@ -4,7 +4,7 @@ import puppeteerr from 'puppeteer-extra';
 import RecaptchaPlugin from 'puppeteer-extra-plugin-recaptcha';
 import https from 'https';
 import 'dotenv/config';
-import { Cluster } from 'puppeteer-cluster';
+
 
 
 
@@ -335,158 +335,7 @@ async function getAhrefsPlan(cookies, useragent) {
       
       try
       {
-        const options = {
-          hostname: 'account.elements.envato.com',
-          path: '/elements-api/recurly_subscription_service/my_subscription.json',
-          method: 'GET',
-          headers: {
-            'Origin': 'https://account.elements.envato.com',
-            'Accept': 'application/json',
-            'Referer': 'https://account.elements.envato.com/subscription',
-            'User-Agent':useragent,
-            'Cookie' : cookies,
-            'x-csrf-token':
-'nmbfM4_A-35575ZjAN4WWh5eFJocLP98-q9nQg5-oAu9AOYTRL8OUMc0lPn3tQYfhnrcfukbEBwH9TzFJ2paww',
-'x-csrf-n-2':
-'R8O9V1_CmsKcYTZ7wpXDvEvCtwJhK8KWQALDtcO-wqHDunXCjBPDs8OXeQdFwovDmcOUwoNaTVzCjG_Dnx_DnsKswqA6RjnCqFfChkF_TsOIwqDDvC5BBjIgEFw',
-'x-datadog-origin':
-'rum',
-'x-datadog-parent-id':
-'6866591733793296182',
-'x-datadog-sampling-priority':
-'1',
-'x-datadog-trace-id': '7646980488174552735',
-            }
-  
-        };
-    
-        const cluster = await Cluster.launch({
-            concurrency: Cluster.CONCURRENCY_PAGE,
-            maxConcurrency: 10,
-            puppeteer: puppeteerr,
-            timeout: 120000,
-          });
-        
-          await cluster.task(async ({ page, data }) => {
-            try {
-      
-      
-              const parsedUrl = new URL(data.proxy);
-              const host = parsedUrl.hostname;
-              const port = parsedUrl.port; 
-              const username = parsedUrl.username; 
-              const password = parsedUrl.password;
-
-              const GL = new GoLogin({
-                token: raw_token,
-                profile_id: profile_id,
-                extra_params: [
-                    "--no-sandbox",
-                    `--proxy-server=${host}:${port}`,
-                ]
-              });
-            
-              const { status, wsUrl } = await GL.start().catch((e) => {
-                console.trace(e);
-                return { status: 'failure' };
-              });
-            
-              if (status !== 'success') {
-                console.log('Invalid status');
-                return;
-              }
-              const browser = await puppeteerr.connect({
-                browserWSEndpoint: wsUrl,
-                defaultViewport: null,
-                headless: true,
-            });
-
-  
-              const page = await browser.newPage();
-      
-              let reqUrl = `https://www.pipiads.com/v1/api/member/login`;
-              console.log(reqUrl)
-      
-              await page.authenticate({
-                username: username,
-                password: password,
-              });
-      
-              await page.setUserAgent(data.userAgent);
-      
-      
-              let bodyResponse = "";
-              let contentTypeResponse = "";
-              let responseStatus = 0
-              
-              const client = await page.target().createCDPSession();
-              await client.send('Network.clearBrowserCookies');
-              await client.send('Network.clearBrowserCache');  
-            //  console.log(JSON.parse(data.cookie))
-            //  await page.setCookie(...JSON.parse(data.cookie));
-              await page.setRequestInterception(true);
-        
-              page.on("request", (request) =>
-              {
-                
-                  const headers = request.headers();
-                  headers["Content-Type"] = 'application/json'
-                  headers["Origin"] = 'https://www.pipiads.com'
-                  headers["Referer"] =  'https://www.pipiads.com/login/'
-      
-                  console.log( data.body)
-                  request.continue({
-                  method: data.method,
-                  ...(data.method === "PUT" && {
-                    postData: data.body,
-                  }),
-                  headers,
-                });
-      
-              });
-      
-              const response = await page.goto(reqUrl);
-              responseStatus = response.status()
-      
-              console.log(responseStatus)
-            //  console.log(response.headers())
-      
-        
-            contentTypeResponse = "application/json";
-            bodyResponse = await response.text()
-      
-              await page.close()
-              await browser.close();
-              return { bodyResponse, contentTypeResponse , responseStatus };
-        
-            
-              
-              
-              
-            } catch (error) {
-              console.log(error, "ini errrrerror");
-              return error;
-            }
-          });
-      
-          const data = `{"email":"collectivecord@gmail.com","password":"CollectivePiPiAds0!","device_id":781941315}`
-      
-          const fetchData = await cluster.execute(
-            {
-                body: data,
-                method : 'PUT',
-                userAgent : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-                proxy : 'http://bajrangbali:jaishreeram@107.172.225.9:12345',
-            });
-            
-            if(fetchData.bodyResponse.includes("Just a moment"))
-            {
-                console.log("Just a moment")
-            }
-            else
-            {
-                console.log(fetchData.bodyResponse)
-            }
+        console.log("  in getAhrefsPlan ")
       }
       catch(e)
       {
@@ -495,6 +344,8 @@ async function getAhrefsPlan(cookies, useragent) {
       }
     });
 }
+
+
 async function getAhrefsMembers(cookies, useragent) {
   return new Promise(async (resolve, reject) => {
     

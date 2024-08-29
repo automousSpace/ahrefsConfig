@@ -10,5 +10,4 @@ yarn.lock
 *_.py
 /examples
 .env
-bot_input.json
-bot_log.json
+

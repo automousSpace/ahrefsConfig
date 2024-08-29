@@ -1,0 +1,11 @@
+{
+  "accountNo": 0,
+  "success": [],
+  "freePlan": [],
+  "incorrectData": [],
+  "block": [],
+  "otpRequried": [],
+  "cloudflare": [],
+  "newCaseFound": [],
+  "fail": []
+}
