@@ -253,7 +253,7 @@ const account_creater = async (username, password, cookiess) =>
                 //  await delay(500000000)
                   const cookies = await page.cookies()
 
-                  while(process.env.FREEZ_EXECUTION == true)
+                  while(process.env.FREEZ_EXECUTION == "true")
                   {
                     console.log(" in freeezz")
                     await delay(2000)
